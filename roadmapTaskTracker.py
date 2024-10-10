@@ -40,7 +40,7 @@ class fileOperations():
         elif(directory == "current" or directory == "here"):
             workingDir = currentDir
         else:
-            changeDirPrompt = str(promptInput(f"are you sure you want to use directory:\n\"{currentDir.joinpath(pathlib.Path(directory))}\"")).lower()
+            changeDirPrompt = str(promptInput(f"are you sure you want to use directory:\n\"{currentDir.joinpath(directoryPath)}\"")).lower()
             if(changeDirPrompt == 'yes' or changeDirPrompt == 'y' or changeDirPrompt == '1'):
                 if(directoryPath.exists()):
                     workingDir = directoryPath
@@ -81,4 +81,4 @@ else:
             fileOperations.changeDir(str(promptInput(f"state the directory you want to use: it will be created at {currentDir}")))
 
 
-fileOperations.createTask("cock")
+fileOperations.createTask("example1")
