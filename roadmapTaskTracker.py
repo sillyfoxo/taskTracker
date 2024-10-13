@@ -1,14 +1,9 @@
 # importing modules we will need
-import json, datetime, pathlib,warnings
+import json, datetime, pathlib
 
 #define globals
-global prompt
-global promptInput
-global commandPrefix
-global filePrefix
-global workingDir
-global currentDir
-global tasksDir
+global prompt, promptInput, commandPrefix, filePrefix, workingDir, currentDir, tasksDir
+
 
 #declare variables
 commandPrefix = 'task'
@@ -22,7 +17,6 @@ tasksDir = pathlib.Path("./tasksLists/")
 class fileOperations():
     def getTasks():
         jsonFiles = []
-
         for fileName in pathlib.os.listdir(workingDir):
             if(fileName.startswith(filePrefix) and fileName.endswith(".json")):
                 #add the files found, name + creation time
@@ -50,7 +44,6 @@ class fileOperations():
                 prompt(f"working directory is now \n{workingDir}")
             else:
                 prompt("directory not changed")
-            
                     
     def createTask(name):
         try:
@@ -59,7 +52,8 @@ class fileOperations():
         except Exception as exception:
             prompt(f"Error creating file with error \n {exception}")
     
-
+class taskParser():
+    pass
 
 ####### ON START #######
 #check for the tasksLists folder, then prompt if missing, do this everytime we start the program
@@ -82,3 +76,5 @@ else:
 
 
 fileOperations.createTask("example1")
+fileOperations.changeDir("uwuTasks")
+fileOperations.createTask("owo")
