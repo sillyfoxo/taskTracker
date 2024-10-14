@@ -2,8 +2,7 @@
 import json, datetime, pathlib
 
 #define globals
-global prompt, promptInput, commandPrefix, filePrefix, workingDir, currentDir, tasksDir
-
+global prompt, promptInput, commandPrefix, filePrefix, workingDir, currentDir, defaultTasksDir
 
 #declare variables
 commandPrefix = 'task'
@@ -11,8 +10,10 @@ filePrefix = 'tsk'
 prompt = lambda prompt : print(f"{datetime.datetime.now().strftime("%H:%M:%S")} - [PROMPT] {prompt}\n")
 promptInput = lambda prompt : input(f"{datetime.datetime.now().strftime("%H:%M:%S")} - [INPUT] {prompt}\n> ")
 workingDir = None
-currentDir = pathlib.Path.cwd()
-tasksDir = pathlib.Path("./tasksLists/")
+plibPath = pathlib.Path
+currentDir = plibPath.cwd()
+defaultTasksDir = plibPath("./tasksLists/")
+
 
 class fileOperations():
     def getTasks():
@@ -20,18 +21,16 @@ class fileOperations():
         for fileName in pathlib.os.listdir(workingDir):
             if(fileName.startswith(filePrefix) and fileName.endswith(".json")):
                 #add the files found, name + creation time
-                fileCreationTime = datetime.datetime.fromtimestamp(pathlib.Path(f"{workingDir}/{fileName}").stat().st_ctime).strftime("%D - %H:%M:%S")
+                fileCreationTime = datetime.datetime.fromtimestamp(plibPath(f"{workingDir}/{fileName}").stat().st_ctime).strftime("%D - %H:%M:%S")
                 jsonFiles.append([fileName,fileCreationTime])
 
         return jsonFiles
 
     def changeDir(directory):
         global workingDir
-        directoryPath = pathlib.Path(directory)
+        directoryPath = plibPath(directory)
         directory = directory.lower()
-        if(directory == "folder"):
-            workingDir = tasksDir
-        elif(directory == "current" or directory == "here"):
+        if(directory == "current" or directory == "here"):
             workingDir = currentDir
         else:
             changeDirPrompt = str(promptInput(f"are you sure you want to use directory:\n\"{currentDir.joinpath(directoryPath)}\"")).lower()
@@ -48,16 +47,31 @@ class fileOperations():
     def createTask(name):
         try:
             prompt(f"creating file at {workingDir}")
-            pathlib.Path(f"{workingDir}/{filePrefix}{name}.json").touch()
+            plibPath(f"{workingDir}/{filePrefix}{name}.json").touch()
         except Exception as exception:
             prompt(f"Error creating file with error \n {exception}")
     
+    def checkIfTaskExists(taskFName):
+        if(jsonFName in pathlib.os.listdir(workingDir)):
+            return True
+        else: 
+            return False
+
+###### WIP ######
 class taskParser():
-    pass
+    def loadTasks(taskName):
+        jsonFName = filePrefix+taskName+".json"
+        loadedFile = json.load(workingDir.joinpath(jsonFName).open())
+        getTasks = loadedFile["tasks"]
+        return getTasks
+    def writeToTask(taskName):
+        pass
 
 ####### ON START #######
 #check for the tasksLists folder, then prompt if missing, do this everytime we start the program
 
+### EXAMPLE 1 OF STARTING THE PROGRAM (ASK FOR DEFAULT FOLDER AND ETC.)
+'''
 if(not pathlib.Path.exists(tasksDir)):
     folderPrompt = promptInput("do you want to create a folder for your tasks list?")
     if ('yes' in folderPrompt.lower() or "1" in folderPrompt):
@@ -73,8 +87,24 @@ else:
             workingDir = tasksDir
         case "no":
             fileOperations.changeDir(str(promptInput(f"state the directory you want to use: it will be created at {currentDir}")))
+'''
+### PROGRAM START 2ND IMPLMENTATION
 
+prompt('Scanning for existing folders')
+for path in pathlib.os.listdir(currentDir): 
+    # FETCH FOLDERS
+    if (plibPath.is_dir(pathlib.Path(path)) and not path.startswith(".")): #filter out the hidden directories
+        if(plibPath(path) == defaultTasksDir):
+            defaultPrompt = promptInput("default folder \"tasksList/\" exists, do you want to continue using the default folder?").lower()
+            if(defaultPrompt == 'yes' or defaultPrompt == '1'):
+                workingDir = defaultTasksDir
+            else:
+                dirPrompt = promptInput("enter the directory you wish to use")
+                try:
+                    fileOperations.changeDir(dirPrompt)
+                except Exception as e:
+                    prompt("error trying to change directories")
 
-fileOperations.createTask("example1")
-fileOperations.changeDir("uwuTasks")
-fileOperations.createTask("owo")
+#### PROGRAM START DIRECTORY MEMES DONE
+
+print(taskParser.loadTasks('example1'))
